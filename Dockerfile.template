@@ -1,0 +1,17 @@
+FROM balenalib/%%BALENA_ARCH%%-alpine:3.17-build as build
+
+# Install nim compiler and build executable
+RUN install_packages nim
+
+COPY push_mem_stats.nim ./
+RUN nim c push_mem_stats.nim
+
+
+FROM balenalib/%%BALENA_ARCH%%-alpine:3.17-run as run
+
+WORKDIR /app
+COPY --from=build ./push_mem_stats ./push_mem_stats
+COPY run_mem_stats.sh ./
+
+# Start the container
+CMD ["./run_mem_stats.sh"]
